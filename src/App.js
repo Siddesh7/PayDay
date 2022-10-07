@@ -1,25 +1,34 @@
-import logo from './logo.svg';
-import './App.css';
+import { WagmiConfig, createClient, useAccount } from "wagmi";
+import {
+  ConnectKitProvider,
+  ConnectKitButton,
+  getDefaultClient,
+} from "connectkit";
 
-function App() {
+const alchemyId = process.env.REACT_APP_ALCHEMY;
+
+const client = createClient(
+  getDefaultClient({
+    appName: "PayDay",
+    alchemyId,
+  })
+);
+
+// Make sure that this component is wrapped with ConnectKitProvider
+const MyComponent = () => {
+  const { address, isConnecting, isDisconnected } = useAccount();
+  if (isConnecting) return <div>Connecting...</div>;
+  if (isDisconnected) return <div>Disconnected</div>;
+  return <div>Connected Wallet: {address}</div>;
+};
+const App = () => {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <WagmiConfig client={client}>
+      <ConnectKitProvider theme="retro">
+        <ConnectKitButton />
+        <MyComponent />
+      </ConnectKitProvider>
+    </WagmiConfig>
   );
-}
-
+};
 export default App;
